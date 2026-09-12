@@ -13,10 +13,13 @@ git pull origin main
 echo "== composer install =="
 composer install --optimize-autoloader --no-dev
 
-if [ -f package.json ]; then
+if [ -f package.json ] && command -v npm >/dev/null 2>&1; then
   echo "== npm install & build =="
-  npm install
-  npm run build
+  # Cache fuera de /var/www: ese directorio es inmutable (chattr +i) y bloquea crear /var/www/.npm
+  npm install --cache /tmp/npm-cache-www-data
+  npm run build --cache /tmp/npm-cache-www-data
+else
+  echo "== npm no disponible en el servidor: se omite build de assets (compilar en local y subir public/build) =="
 fi
 
 echo "== migraciones =="
