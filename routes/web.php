@@ -3,6 +3,7 @@
 use App\Http\Controllers\ConsultaPublicaController;
 use App\Http\Controllers\EncomiendaController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\UsuarioController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -35,6 +36,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/ajustes', [EncomiendaController::class, 'ajustes'])->name('encomiendas.ajustes');
     Route::put('/ajustes', [EncomiendaController::class, 'ajustesUpdate'])->name('encomiendas.ajustes.update');
+
+    Route::middleware('role:admin')->prefix('usuarios')->name('usuarios.')->group(function () {
+        Route::get('/', [UsuarioController::class, 'index'])->name('index');
+        Route::get('/crear', [UsuarioController::class, 'create'])->name('create');
+        Route::post('/', [UsuarioController::class, 'store'])->name('store');
+        Route::get('/{usuario}/editar', [UsuarioController::class, 'edit'])->name('edit');
+        Route::put('/{usuario}', [UsuarioController::class, 'update'])->name('update');
+        Route::post('/{usuario}/resetear-password', [UsuarioController::class, 'resetPassword'])->name('reset-password');
+        Route::delete('/{usuario}', [UsuarioController::class, 'destroy'])->name('destroy');
+    });
 });
 
 Route::middleware('auth')->group(function () {

@@ -49,6 +49,11 @@
       <a href="{{ route('encomiendas.ajustes') }}" class="{{ request()->routeIs('encomiendas.ajustes') ? 'active' : '' }}">
         <x-icon name="settings" :size="16" /> <span class="label">Ajustes</span>
       </a>
+      @if(auth()->user()->isAdmin())
+      <a href="{{ route('usuarios.index') }}" class="{{ request()->routeIs('usuarios.*') ? 'active' : '' }}">
+        <x-icon name="user" :size="16" /> <span class="label">Usuarios</span>
+      </a>
+      @endif
     </nav>
   </div>
 </header>
