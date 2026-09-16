@@ -22,6 +22,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/encomiendas', [EncomiendaController::class, 'index'])->name('encomiendas.index');
     Route::get('/encomiendas/registrar', [EncomiendaController::class, 'create'])->name('encomiendas.create');
     Route::post('/encomiendas', [EncomiendaController::class, 'store'])->name('encomiendas.store');
+    Route::post('/encomiendas/{encomienda}/reasignar', [EncomiendaController::class, 'reasignar'])
+        ->middleware('role:administrativa')
+        ->name('encomiendas.reasignar');
     Route::post('/encomiendas/{encomienda}/notificar', [EncomiendaController::class, 'notificar'])->name('encomiendas.notificar');
     Route::post('/encomiendas/{encomienda}/entregar', [EncomiendaController::class, 'entregar'])->name('encomiendas.entregar');
     Route::delete('/encomiendas/{encomienda}', [EncomiendaController::class, 'destroy'])->name('encomiendas.destroy');

@@ -6,7 +6,7 @@
 <section class="panel">
     <p class="eyebrow"><x-icon name="package" :size="14" /> Nueva recepción</p>
     <h2 class="sec">Registrar una encomienda</h2>
-    <p class="lede">Deja constancia de qué llegó, quién la recibió y a quién pertenece. Al guardar se genera un código de seguimiento y su QR, y podrás avisarle al interesado en un toque.</p>
+    <p class="lede">Deja constancia de qué llegó y a qué colaborador de administrativa se le entrega. Al guardar se genera un código de seguimiento y su QR; administrativa se encargará de reasignarla a la dependencia final y notificar al interesado.</p>
 
     <form method="POST" action="{{ route('encomiendas.store') }}" class="card pad">
         @csrf
@@ -38,9 +38,25 @@
                 <input name="guia" value="{{ old('guia') }}" placeholder="N.º de guía, Servientrega, etc.">
             </div>
             <div class="field">
-                <label>¿Quién la recibe? <span class="req">*</span></label>
-                <input name="recibe" value="{{ old('recibe') }}" placeholder="Nombre del funcionario de recepción" required>
-                @error('recibe')<span class="error">{{ $message }}</span>@enderror
+                <label>Cédula del colaborador que recibe <span class="req">*</span></label>
+                <input id="colaborador_cedula" name="colaborador_cedula" list="colaboradores-list" value="{{ old('colaborador_cedula') }}" placeholder="Número de cédula" required autocomplete="off">
+                <datalist id="colaboradores-list">
+                    @foreach($colaboradores as $col)
+                        <option value="{{ $col->cedula }}" data-nombre="{{ $col->nombre }}" data-correo="{{ $col->correo }}">{{ $col->nombre }}</option>
+                    @endforeach
+                </datalist>
+                <span class="hint">Si ya existe, el nombre y correo se completan solos. Si es nuevo, complétalos abajo.</span>
+                @error('colaborador_cedula')<span class="error">{{ $message }}</span>@enderror
+            </div>
+            <div class="field">
+                <label>Nombre del colaborador <span class="req">*</span></label>
+                <input id="colaborador_nombre" name="colaborador_nombre" value="{{ old('colaborador_nombre') }}" placeholder="Nombre de quien recibe en administrativa" required>
+                @error('colaborador_nombre')<span class="error">{{ $message }}</span>@enderror
+            </div>
+            <div class="field">
+                <label>Correo del colaborador <span class="req">*</span></label>
+                <input type="email" id="colaborador_correo" name="colaborador_correo" value="{{ old('colaborador_correo') }}" placeholder="nombre@uninavarra.edu.co" required>
+                @error('colaborador_correo')<span class="error">{{ $message }}</span>@enderror
             </div>
             <div class="field">
                 <label>Interesado / destinatario <span class="req">*</span></label>
@@ -54,23 +70,9 @@
                 @error('documento_interesado')<span class="error">{{ $message }}</span>@enderror
             </div>
             <div class="field">
-                <label>Dependencia / oficina</label>
-                <select name="dependencia_id">
-                    <option value="">— Sin especificar —</option>
-                    @foreach($dependencias as $dep)
-                        <option value="{{ $dep->id }}" @selected((string) old('dependencia_id') === (string) $dep->id)>{{ $dep->nombre }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <div class="field">
                 <label>WhatsApp del interesado</label>
                 <input name="whatsapp" value="{{ old('whatsapp') }}" placeholder="Ej.: 3001234567" inputmode="tel">
                 <span class="hint">Solo dígitos. Se asume Colombia (+57) si no pones indicativo.</span>
-            </div>
-            <div class="field">
-                <label>Correo del interesado</label>
-                <input type="email" name="correo" value="{{ old('correo') }}" placeholder="nombre@uninavarra.edu.co">
-                @error('correo')<span class="error">{{ $message }}</span>@enderror
             </div>
             <div class="field full">
                 <label>Enlace de soporte digital (si aplica)</label>
@@ -89,4 +91,23 @@
         </div>
     </form>
 </section>
+@endsection
+
+@section('scripts')
+<script>
+(function () {
+    const cedula = document.getElementById('colaborador_cedula');
+    const nombre = document.getElementById('colaborador_nombre');
+    const correo = document.getElementById('colaborador_correo');
+    const lista = document.getElementById('colaboradores-list');
+
+    cedula.addEventListener('input', () => {
+        const opcion = Array.from(lista.options).find(o => o.value === cedula.value);
+        if (opcion) {
+            nombre.value = opcion.dataset.nombre;
+            correo.value = opcion.dataset.correo;
+        }
+    });
+})();
+</script>
 @endsection

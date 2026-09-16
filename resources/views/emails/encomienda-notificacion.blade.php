@@ -3,15 +3,16 @@
 
 Hola **{{ $encomienda->interesado }}**,
 
-Te informamos desde UNINAVARRA ({{ $estacion }}) que llegó tu encomienda a recepción.
+Te informamos desde UNINAVARRA ({{ $estacion }}) que tu encomienda ya está disponible en **{{ $encomienda->dependencia?->nombre }}**.
 
 <x-mail::panel>
 **Código de seguimiento:** {{ $encomienda->codigo }}<br>
 **Descripción:** {{ $encomienda->descripcion }}<br>
-**Recibida:** {{ $encomienda->fecha->format('d/m/Y H:i') }} por {{ $encomienda->recibe }}
+**Recibida:** {{ $encomienda->fecha->format('d/m/Y H:i') }}<br>
+**Dependencia:** {{ $encomienda->dependencia?->nombre }}
 </x-mail::panel>
 
-Puedes reclamarla en recepción presentando tu documento de identidad.
+Puedes reclamarla presentando tu documento de identidad.
 
 <x-mail::button :url="route('consulta.form')">
 Consultar mis encomiendas

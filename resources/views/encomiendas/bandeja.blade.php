@@ -3,8 +3,8 @@
 @section('title', 'Bandeja')
 
 @php
-    $labels = ['recibida' => 'Recibida', 'notificada' => 'Notificada', 'entregada' => 'Entregada'];
-    $order = ['recibida', 'notificada', 'entregada'];
+    $labels = ['recibida' => 'Recibida', 'en_administrativa' => 'En administrativa', 'notificada' => 'Notificada', 'entregada' => 'Entregada'];
+    $order = ['recibida', 'en_administrativa', 'notificada', 'entregada'];
 @endphp
 
 @section('content')
@@ -19,7 +19,7 @@
             <input type="search" name="buscar" value="{{ $buscar }}" placeholder="Buscar por código, interesado, descripción, dependencia…" onchange="this.form.submit()">
         </div>
         <div class="chips">
-            @foreach(['todas' => 'Todas', 'recibida' => 'Recibidas', 'notificada' => 'Notificadas', 'entregada' => 'Entregadas'] as $key => $label)
+            @foreach(['todas' => 'Todas', 'recibida' => 'Recibidas', 'en_administrativa' => 'En administrativa', 'notificada' => 'Notificadas', 'entregada' => 'Entregadas'] as $key => $label)
                 <a class="chip {{ $filtro === $key ? 'active' : '' }}"
                    href="{{ route('encomiendas.index', array_filter(['filtro' => $key === 'todas' ? null : $key, 'buscar' => $buscar ?: null])) }}">{{ $label }}</a>
             @endforeach
@@ -60,14 +60,39 @@
 
                     <dl>
                         <dt>Interesado</dt><dd>{{ $e->interesado }}@if($e->dependencia) · {{ $e->dependencia->nombre }}@endif</dd>
-                        <dt>Recibida</dt><dd>{{ $e->fecha->format('d/m/Y H:i') }} por {{ $e->recibe }}</dd>
+                        <dt>Recibida</dt><dd>{{ $e->fecha->format('d/m/Y H:i') }} por {{ $e->colaborador?->nombre ?? $e->recibe }}</dd>
                         @if($e->guia)<dt>Guía</dt><dd>{{ $e->guia }}</dd>@endif
                         @if($e->whatsapp)<dt>WhatsApp</dt><dd>{{ $e->whatsapp }}</dd>@endif
                         @if($e->correo)<dt>Correo</dt><dd>{{ $e->correo }}</dd>@endif
                         @if($e->enlace_drive)<dt>Enlace</dt><dd><a href="{{ $e->enlace_drive }}" target="_blank" rel="noopener">Ver en Drive</a></dd>@endif
                         @if($e->obs)<dt>Obs.</dt><dd>{{ $e->obs }}</dd>@endif
+                        @if($e->reasignada_at)<dt>Reasignada</dt><dd>{{ $e->reasignada_at->format('d/m/Y H:i') }} por {{ $e->reasignada_por }}</dd>@endif
                         @if($e->estado === 'entregada')<dt>Entregada</dt><dd>{{ $e->fecha_entrega?->format('d/m/Y H:i') }} a {{ $e->entregado_a ?: $e->interesado }}</dd>@endif
                     </dl>
+
+                    @if($e->estado === 'recibida' && auth()->user()->isAdministrativa())
+                    <form method="POST" action="{{ route('encomiendas.reasignar', $e) }}" class="card pad reasignar-form">
+                        @csrf
+                        <div class="grid">
+                            <div class="field">
+                                <label>Dependencia final <span class="req">*</span></label>
+                                <select name="dependencia_id" required>
+                                    <option value="">— Seleccione —</option>
+                                    @foreach($dependencias as $dep)
+                                        <option value="{{ $dep->id }}">{{ $dep->nombre }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="field">
+                                <label>Correo institucional destino <span class="req">*</span></label>
+                                <input type="email" name="correo" placeholder="dependencia@uninavarra.edu.co" required>
+                            </div>
+                        </div>
+                        <div class="actions">
+                            <button type="submit" class="btn primary sm"><x-icon name="arrow-right" :size="15" />Tomar custodia y reasignar</button>
+                        </div>
+                    </form>
+                    @endif
                 </div>
                 <div class="qr-box">
                     <div class="qr" data-qr="{{ $qrPayload }}"></div>
@@ -77,13 +102,13 @@
             <div class="foot no-print">
                 @if($wa)
                     <a class="btn wa sm" target="_blank" rel="noopener"
-                       href="https://wa.me/{{ $wa }}?text={{ urlencode($mensaje) }}"
-                       onclick="notificar({{ $e->id }})"><x-icon name="message-circle" :size="15" />Avisar por WhatsApp</a>
+                       href="https://wa.me/{{ $wa }}?text={{ urlencode($mensaje) }}"><x-icon name="message-circle" :size="15" />Avisar por WhatsApp</a>
                 @endif
-                @if($e->correo)
-                    <a class="btn mail sm"
-                       href="mailto:{{ $e->correo }}?subject={{ urlencode('Llegó su encomienda · '.$e->codigo) }}&body={{ urlencode($mensaje) }}"
-                       onclick="notificar({{ $e->id }})"><x-icon name="mail" :size="15" />Avisar por correo</a>
+                @if($e->estado === 'notificada' && $e->correo)
+                    <form method="POST" action="{{ route('encomiendas.notificar', $e) }}" style="display:inline">
+                        @csrf
+                        <button type="submit" class="btn mail sm"><x-icon name="mail" :size="15" />Reenviar correo</button>
+                    </form>
                 @endif
                 <span class="grow"></span>
                 <button type="button" class="btn ghost sm" onclick="imprimir({{ $e->id }})"><x-icon name="printer" :size="15" />Imprimir sticker</button>
@@ -97,9 +122,6 @@
                 <form method="POST" action="{{ route('encomiendas.destroy', $e) }}" onsubmit="return confirm('¿Eliminar la encomienda {{ $e->codigo }}? Esta acción no se puede deshacer.')" style="display:inline">
                     @csrf @method('DELETE')
                     <button type="submit" class="btn del sm"><x-icon name="trash" :size="15" />Eliminar</button>
-                </form>
-                <form id="notify-form-{{ $e->id }}" method="POST" action="{{ route('encomiendas.notificar', $e) }}" style="display:none">
-                    @csrf
                 </form>
             </div>
         </div>
@@ -120,10 +142,6 @@
 document.querySelectorAll('.qr').forEach(el => {
     new QRCode(el, { text: el.dataset.qr, width: 160, height: 160, correctLevel: QRCode.CorrectLevel.M });
 });
-
-function notificar(id) {
-    setTimeout(() => document.getElementById('notify-form-'+id).submit(), 300);
-}
 
 function marcarEntregada(ev, form, sugerido) {
     const quien = prompt('¿A quién se le entrega? (nombre de quien reclama)', sugerido);

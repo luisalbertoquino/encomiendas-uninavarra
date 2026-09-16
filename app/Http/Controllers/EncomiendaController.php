@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Mail\EncomiendaNotificacion;
 use App\Models\Ajuste;
+use App\Models\Colaborador;
 use App\Models\Dependencia;
 use App\Models\Encomienda;
 use Illuminate\Http\RedirectResponse;
@@ -18,7 +19,7 @@ class EncomiendaController extends Controller
     public function create(): View
     {
         return view('encomiendas.registrar', [
-            'dependencias' => Dependencia::orderBy('nombre')->get(),
+            'colaboradores' => Colaborador::orderBy('nombre')->get(),
         ]);
     }
 
@@ -30,50 +31,55 @@ class EncomiendaController extends Controller
             'descripcion' => ['required', 'string', 'max:255'],
             'remitente' => ['nullable', 'string', 'max:255'],
             'guia' => ['nullable', 'string', 'max:100'],
-            'recibe' => ['required', 'string', 'max:255'],
             'interesado' => ['required', 'string', 'max:255'],
             'documento_interesado' => ['required', 'string', 'max:30'],
-            'dependencia_id' => ['nullable', 'exists:dependencias,id'],
             'whatsapp' => ['nullable', 'string', 'max:20'],
-            'correo' => ['nullable', 'email', 'max:255'],
             'obs' => ['nullable', 'string'],
             'enlace_drive' => ['nullable', 'url', 'max:2048'],
+            'colaborador_cedula' => ['required', 'string', 'max:30'],
+            'colaborador_nombre' => ['required', 'string', 'max:255'],
+            'colaborador_correo' => ['required', 'email', 'max:255'],
         ]);
 
         $ajuste = Ajuste::actual();
 
         $encomienda = DB::transaction(function () use ($data, $ajuste) {
-            $fecha = new \DateTime($data['fecha']);
-            $data['codigo'] = Encomienda::generarCodigo($ajuste->prefijo, $fecha);
-            $data['estado'] = ($data['correo'] ?? null) ? 'notificada' : 'recibida';
+            $colaborador = Colaborador::firstOrCreate(
+                ['cedula' => $data['colaborador_cedula']],
+                ['nombre' => $data['colaborador_nombre'], 'correo' => $data['colaborador_correo']],
+            );
 
-            $encomienda = Encomienda::create($data);
+            $fecha = new \DateTime($data['fecha']);
+
+            $encomienda = Encomienda::create([
+                'codigo' => Encomienda::generarCodigo($ajuste->prefijo, $fecha),
+                'fecha' => $data['fecha'],
+                'tipo' => $data['tipo'],
+                'descripcion' => $data['descripcion'],
+                'remitente' => $data['remitente'] ?? null,
+                'guia' => $data['guia'] ?? null,
+                'recibe' => $colaborador->nombre,
+                'interesado' => $data['interesado'],
+                'documento_interesado' => $data['documento_interesado'],
+                'colaborador_id' => $colaborador->id,
+                'whatsapp' => $data['whatsapp'] ?? null,
+                'obs' => $data['obs'] ?? null,
+                'enlace_drive' => $data['enlace_drive'] ?? null,
+                'estado' => 'recibida',
+            ]);
 
             $encomienda->historial()->create([
                 'estado' => 'recibida',
-                'por' => $data['recibe'],
+                'por' => $colaborador->nombre,
                 'fecha' => now(),
             ]);
-
-            if ($encomienda->estado === 'notificada') {
-                $encomienda->historial()->create([
-                    'estado' => 'notificada',
-                    'por' => 'Correo automático',
-                    'fecha' => now(),
-                ]);
-            }
 
             return $encomienda;
         });
 
-        if ($encomienda->correo) {
-            Mail::to($encomienda->correo)
-                ->send(new EncomiendaNotificacion($encomienda, $ajuste->estacion));
-        }
-
         return redirect()
             ->route('encomiendas.index', ['highlight' => $encomienda->id])
-            ->with('status', 'Encomienda '.$encomienda->codigo.' registrada'.($encomienda->correo ? ' y notificada por correo' : ''));
+            ->with('status', 'Encomienda '.$encomienda->codigo.' registrada');
     }
 
     public function index(Request $request): View
@@ -81,9 +87,9 @@ class EncomiendaController extends Controller
         $filtro = $request->query('filtro', 'todas');
         $buscar = trim((string) $request->query('buscar', ''));
 
-        $query = Encomienda::with('dependencia')->orderByDesc('fecha');
+        $query = Encomienda::with(['dependencia', 'colaborador'])->orderByDesc('fecha');
 
-        if (in_array($filtro, ['recibida', 'notificada', 'entregada'], true)) {
+        if (in_array($filtro, ['recibida', 'en_administrativa', 'notificada', 'entregada'], true)) {
             $query->where('estado', $filtro);
         }
 
@@ -104,27 +110,59 @@ class EncomiendaController extends Controller
             'buscar' => $buscar,
             'ajuste' => Ajuste::actual(),
             'highlight' => $request->query('highlight'),
+            'dependencias' => Dependencia::orderBy('nombre')->get(),
         ]);
+    }
+
+    public function reasignar(Request $request, Encomienda $encomienda): RedirectResponse
+    {
+        abort_unless($encomienda->estado === 'recibida', 422, 'La encomienda ya fue reasignada.');
+
+        $data = $request->validate([
+            'dependencia_id' => ['required', 'exists:dependencias,id'],
+            'correo' => ['required', 'email', 'max:255'],
+        ]);
+
+        $ajuste = Ajuste::actual();
+
+        DB::transaction(function () use ($request, $encomienda, $data) {
+            $encomienda->update([
+                'dependencia_id' => $data['dependencia_id'],
+                'correo' => $data['correo'],
+                'estado' => 'en_administrativa',
+                'reasignada_por' => $request->user()->name,
+                'reasignada_at' => now(),
+            ]);
+
+            $encomienda->historial()->create([
+                'estado' => 'en_administrativa',
+                'por' => $request->user()->name,
+                'fecha' => now(),
+            ]);
+        });
+
+        Mail::to($encomienda->correo)
+            ->send(new EncomiendaNotificacion($encomienda, $ajuste->estacion));
+
+        $encomienda->update(['estado' => 'notificada']);
+        $encomienda->historial()->create([
+            'estado' => 'notificada',
+            'por' => 'Correo automático',
+            'fecha' => now(),
+        ]);
+
+        return back()->with('status', 'Encomienda reasignada a '.$encomienda->dependencia->nombre.' y notificada por correo');
     }
 
     public function notificar(Request $request, Encomienda $encomienda): RedirectResponse
     {
-        if ($encomienda->estado === 'recibida') {
-            $encomienda->update(['estado' => 'notificada']);
-            $encomienda->historial()->create([
-                'estado' => 'notificada',
-                'por' => $request->user()->name,
-                'fecha' => now(),
-            ]);
-
-            if ($encomienda->correo) {
-                $ajuste = Ajuste::actual();
-                Mail::to($encomienda->correo)
-                    ->send(new EncomiendaNotificacion($encomienda, $ajuste->estacion));
-            }
+        if ($encomienda->estado === 'notificada' && $encomienda->correo) {
+            $ajuste = Ajuste::actual();
+            Mail::to($encomienda->correo)
+                ->send(new EncomiendaNotificacion($encomienda, $ajuste->estacion));
         }
 
-        return back()->with('status', 'Marcada como notificada');
+        return back()->with('status', 'Correo reenviado');
     }
 
     public function entregar(Request $request, Encomienda $encomienda): RedirectResponse
@@ -179,7 +217,7 @@ class EncomiendaController extends Controller
         $desde = $request->query('desde');
         $hasta = $request->query('hasta');
 
-        $query = Encomienda::with('dependencia')->orderBy('fecha');
+        $query = Encomienda::with(['dependencia', 'colaborador'])->orderBy('fecha');
 
         if ($desde) {
             $query->whereDate('fecha', '>=', $desde);
@@ -196,9 +234,9 @@ class EncomiendaController extends Controller
 
             fputcsv($out, [
                 'Código', 'Fecha recepción', 'Tipo', 'Descripción', 'Remitente', 'Guía',
-                'Recibió', 'Interesado', 'Documento interesado', 'Dependencia',
+                'Colaborador recepción', 'Cédula colaborador', 'Interesado', 'Documento interesado', 'Dependencia',
                 'WhatsApp', 'Correo', 'Enlace Drive', 'Observaciones',
-                'Estado', 'Entregado a', 'Fecha entrega',
+                'Estado', 'Reasignada por', 'Fecha reasignación', 'Entregado a', 'Fecha entrega',
             ], ';');
 
             $query->chunk(200, function ($encomiendas) use ($out) {
@@ -210,7 +248,8 @@ class EncomiendaController extends Controller
                         $e->descripcion,
                         $e->remitente,
                         $e->guia,
-                        $e->recibe,
+                        $e->colaborador?->nombre ?? $e->recibe,
+                        $e->colaborador?->cedula,
                         $e->interesado,
                         $e->documento_interesado,
                         $e->dependencia?->nombre,
@@ -218,7 +257,9 @@ class EncomiendaController extends Controller
                         $e->correo,
                         $e->enlace_drive,
                         $e->obs,
-                        ucfirst($e->estado),
+                        ucfirst(str_replace('_', ' ', $e->estado)),
+                        $e->reasignada_por,
+                        $e->reasignada_at?->format('d/m/Y H:i'),
                         $e->entregado_a,
                         $e->fecha_entrega?->format('d/m/Y H:i'),
                     ], ';');

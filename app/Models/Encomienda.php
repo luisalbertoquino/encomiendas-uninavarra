@@ -11,19 +11,25 @@ class Encomienda extends Model
 {
     protected $fillable = [
         'codigo', 'fecha', 'tipo', 'descripcion', 'remitente', 'guia',
-        'recibe', 'interesado', 'dependencia_id', 'whatsapp', 'correo',
+        'recibe', 'interesado', 'colaborador_id', 'dependencia_id', 'whatsapp', 'correo',
         'obs', 'documento_interesado', 'enlace_drive',
-        'estado', 'entregado_a', 'fecha_entrega',
+        'estado', 'entregado_a', 'fecha_entrega', 'reasignada_por', 'reasignada_at',
     ];
 
     protected $casts = [
         'fecha' => 'datetime',
         'fecha_entrega' => 'datetime',
+        'reasignada_at' => 'datetime',
     ];
 
     public function dependencia(): BelongsTo
     {
         return $this->belongsTo(Dependencia::class);
+    }
+
+    public function colaborador(): BelongsTo
+    {
+        return $this->belongsTo(Colaborador::class);
     }
 
     public function historial(): HasMany
@@ -68,7 +74,7 @@ class Encomienda extends Model
             $this->descripcion,
             $this->codigo,
             $this->fecha->format('d/m/Y H:i'),
-            $this->recibe
+            $this->colaborador?->nombre ?? $this->recibe
         );
     }
 }
