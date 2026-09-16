@@ -39,10 +39,15 @@
             </div>
 
             <div class="field buscador-wrap">
-                <label>Cédula del colaborador que recibe <span class="req">*</span></label>
+                <div class="label-row">
+                    <label>Cédula del colaborador que recibe <span class="req">*</span></label>
+                    <span class="info-tip" tabindex="0">
+                        <i class="icono">i</i>
+                        <span class="globo">Escribe al menos 2 caracteres para ver coincidencias. Si es nuevo, completa nombre y correo abajo.</span>
+                    </span>
+                </div>
                 <input id="colaborador_cedula" name="colaborador_cedula" value="{{ old('colaborador_cedula') }}" placeholder="Escribe cédula o nombre…" required autocomplete="off">
                 <div id="colaborador_sugerencias" class="sugerencias" hidden></div>
-                <span class="hint">Escribe al menos 2 caracteres para ver coincidencias. Si es nuevo, completa nombre y correo abajo.</span>
                 @error('colaborador_cedula')<span class="error">{{ $message }}</span>@enderror
             </div>
             <div class="field">
@@ -57,10 +62,15 @@
             </div>
 
             <div class="field buscador-wrap">
-                <label>Cédula del interesado / destinatario <span class="req">*</span></label>
+                <div class="label-row">
+                    <label>Cédula del interesado / destinatario <span class="req">*</span></label>
+                    <span class="info-tip" tabindex="0">
+                        <i class="icono">i</i>
+                        <span class="globo">Con este número el interesado podrá consultar todas sus encomiendas pendientes, sin necesidad de cuenta.</span>
+                    </span>
+                </div>
                 <input id="interesado_cedula" name="interesado_cedula" value="{{ old('interesado_cedula') }}" placeholder="Escribe cédula o nombre…" required autocomplete="off">
                 <div id="interesado_sugerencias" class="sugerencias" hidden></div>
-                <span class="hint">Con este número el interesado podrá consultar todas sus encomiendas pendientes, sin necesidad de cuenta.</span>
                 @error('interesado_cedula')<span class="error">{{ $message }}</span>@enderror
             </div>
             <div class="field">
@@ -75,9 +85,14 @@
             </div>
 
             <div class="field full">
-                <label>Enlace de soporte digital (si aplica)</label>
+                <div class="label-row">
+                    <label>Enlace de soporte digital (si aplica)</label>
+                    <span class="info-tip" tabindex="0">
+                        <i class="icono">i</i>
+                        <span class="globo">No se suben archivos al servidor: pega aquí el enlace donde ya lo hayas compartido (Google Drive, OneDrive, Dropbox, etc.).</span>
+                    </span>
+                </div>
                 <input type="url" name="enlace_drive" value="{{ old('enlace_drive') }}" placeholder="https://...">
-                <span class="hint">No se suben archivos al servidor: pega aquí el enlace donde ya lo hayas compartido (Google Drive, OneDrive, Dropbox, etc.).</span>
                 @error('enlace_drive')<span class="error">{{ $message }}</span>@enderror
             </div>
             <div class="field full">
@@ -111,7 +126,8 @@ function activarBuscador(prefijo, tipo) {
         if (!items.length) { ocultar(); return; }
         caja.innerHTML = items.map(p =>
             `<div class="sugerencia" data-nombre="${p.nombre.replace(/"/g,'&quot;')}" data-correo="${(p.correo||'').replace(/"/g,'&quot;')}" data-cedula="${p.cedula}">
-                <strong>${p.nombre}</strong><span>C.C. ${p.cedula}</span>
+                <span class="datos"><strong>${p.nombre}</strong><small>C.C. ${p.cedula}</small></span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
             </div>`
         ).join('');
         caja.hidden = false;
