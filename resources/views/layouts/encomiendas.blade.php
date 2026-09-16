@@ -20,10 +20,6 @@
         <h1>Recepción de Encomiendas</h1>
       </div>
       <div class="head-actions">
-        <span class="estacion-pill">
-          <x-icon name="building" :size="14" />
-          <span class="label">{{ $ajuste->estacion ?? 'Recepción principal' }}</span>
-        </span>
         <form method="POST" action="{{ route('logout') }}" class="no-print btn-logout">
           @csrf
           <button type="submit">

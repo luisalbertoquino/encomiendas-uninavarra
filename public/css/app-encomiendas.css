@@ -76,7 +76,6 @@ header.top .head-row{display:flex;align-items:center;gap:14px;padding-bottom:18p
 .brand h1{font-family:var(--serif);font-size:21px;line-height:1.2;margin:0;font-weight:600;letter-spacing:-.01em;white-space:nowrap}
 
 .head-actions{margin-left:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex:none}
-.estacion-pill{font-size:12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);padding:7px 14px;border-radius:999px;white-space:nowrap;color:rgba(255,255,255,.85);display:flex;align-items:center;gap:6px}
 
 nav.tabs{display:flex;gap:2px;flex-wrap:wrap;align-items:flex-end;margin:0 -4px}
 nav.tabs a{background:transparent;color:rgba(255,255,255,.68);border:none;padding:11px 18px;border-radius:10px 10px 0 0;font:inherit;font-size:13.5px;font-weight:500;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:7px;transition:background .15s,color .15s;margin:0 4px}
@@ -84,7 +83,7 @@ nav.tabs a:hover{color:#fff;background:rgba(255,255,255,.06)}
 nav.tabs a.active{background:var(--bg);color:var(--ink);font-weight:600}
 nav.tabs a.active svg{color:var(--primary)}
 
-.btn-logout button{background:transparent;color:rgba(255,255,255,.75);border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:8px 14px 8px 12px;font:inherit;font-size:12.5px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:.15s}
+.btn-logout button{appearance:none;-webkit-appearance:none;background:transparent;color:rgba(255,255,255,.75);border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:8px 14px 8px 12px;font:inherit;font-size:12.5px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:.15s}
 .btn-logout button:hover{background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.4)}
 
 /* ---------- Encabezados de sección ---------- */
@@ -237,7 +236,6 @@ footer.public-foot{padding:26px 0;text-align:center;color:var(--muted);font-size
   .poster{grid-template-columns:1fr}
 
   header.top .head-row{padding-bottom:14px;flex-wrap:nowrap}
-  .estacion-pill{display:none}
   .brand{flex:1 1 auto;overflow:hidden}
   .brand h1{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .head-actions{margin-left:0;flex:none}
