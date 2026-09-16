@@ -14,10 +14,7 @@
     <div class="brand-shield">
       <img src="{{ asset('images/logo-uninavarra.png') }}" alt="Escudo UNINAVARRA">
     </div>
-    <div>
-      <h1>Recepción de Encomiendas</h1>
-      <div class="sub">UNINAVARRA · Neiva, Huila</div>
-    </div>
+    <h1>Recepción de Encomiendas</h1>
     <div class="head-actions">
       <a href="{{ route('login') }}" class="btn ghost sm">
         <x-icon name="log-in" :size="16" />

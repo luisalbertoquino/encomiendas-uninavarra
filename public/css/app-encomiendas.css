@@ -69,14 +69,13 @@ a{color:inherit}
 header.top{background:linear-gradient(155deg, var(--charcoal) 0%, #2c211d 55%, var(--primary-d) 130%);color:#fff;padding:22px 0 0;position:relative}
 header.top::after{content:'';position:absolute;left:0;right:0;bottom:0;height:3px;background:linear-gradient(90deg, var(--gold) 0%, var(--primary) 45%, var(--gold) 100%)}
 header.top .wrap{padding-bottom:0}
-header.top .head-row{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;padding-bottom:18px}
-.brand{display:flex;align-items:center;min-width:0}
+header.top .head-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding-bottom:18px}
+.brand{display:flex;align-items:center;gap:14px;min-width:0}
 .brand-shield{width:52px;height:52px;flex:none;display:grid;place-items:center}
 .brand-shield img{width:100%;height:100%;object-fit:contain}
-.brand-shield-center{width:72px;height:72px;justify-self:center}
 .brand h1{font-family:var(--serif);font-size:21px;line-height:1.2;margin:0;font-weight:600;letter-spacing:-.01em}
 
-.head-actions{justify-self:end;display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex:none}
+.head-actions{margin-left:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex:none}
 .estacion-pill{font-size:12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);padding:7px 14px;border-radius:999px;white-space:nowrap;color:rgba(255,255,255,.85);display:flex;align-items:center;gap:6px}
 
 nav.tabs{display:flex;gap:2px;flex-wrap:wrap;align-items:flex-end;margin:0 -4px}
@@ -193,12 +192,11 @@ textarea{resize:vertical;min-height:70px}
 
 /* ---------- Home / consulta pública ---------- */
 .public-shell{min-height:100vh;display:flex;flex-direction:column}
-.public-header{padding:20px 0;border-bottom:1px solid var(--line)}
+.public-header{padding:20px 0;border-bottom:1px solid var(--line);background:#fff}
 .public-header .wrap{display:flex;align-items:center;gap:16px;padding-bottom:0;flex-wrap:wrap}
-.public-header .brand-shield{width:56px;height:56px}
-.public-header h1{color:var(--charcoal);font-size:19px}
-.public-header .sub{color:var(--muted);opacity:1}
-.public-header .head-actions{gap:10px}
+.public-header .brand-shield{width:56px;height:56px;flex:none}
+.public-header h1{color:var(--charcoal);font-size:19px;margin:0;flex:1 1 auto}
+.public-header .head-actions{gap:10px;margin-left:0}
 
 .hero{padding:44px 0 36px;text-align:center}
 .hero .eyebrow{justify-content:center}
@@ -231,10 +229,9 @@ footer.public-foot{padding:26px 0;text-align:center;color:var(--muted);font-size
   .qr-box{flex-direction:row;justify-content:flex-start}
   .poster{grid-template-columns:1fr}
 
-  header.top .head-row{display:flex;padding-bottom:14px;flex-wrap:nowrap}
+  header.top .head-row{padding-bottom:14px;flex-wrap:nowrap}
   .estacion-pill{display:none}
   .brand{flex:1 1 auto;overflow:hidden}
-  .brand-shield-center{display:none}
   .head-actions{margin-left:0;flex:none}
   nav.tabs{width:100%;justify-content:flex-start;overflow-x:auto;flex-wrap:nowrap}
   nav.tabs a{padding:10px 12px;font-size:12.5px;flex:none}
@@ -246,6 +243,7 @@ footer.public-foot{padding:26px 0;text-align:center;color:var(--muted);font-size
 
 @media(max-width:480px){
   .brand h1{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .brand-shield{width:38px;height:38px}
   .head-actions{gap:6px}
   .btn-logout button span{display:none}
 }

@@ -14,10 +14,10 @@
   <div class="wrap">
     <div class="head-row">
       <div class="brand">
+        <div class="brand-shield">
+          <img src="{{ asset('images/logo-uninavarra.png') }}" alt="Escudo UNINAVARRA">
+        </div>
         <h1>Recepción de Encomiendas</h1>
-      </div>
-      <div class="brand-shield brand-shield-center">
-        <img src="{{ asset('images/logo-uninavarra.png') }}" alt="Escudo UNINAVARRA">
       </div>
       <div class="head-actions">
         <span class="estacion-pill">

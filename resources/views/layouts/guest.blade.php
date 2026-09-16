@@ -15,7 +15,6 @@
         </div>
         <div class="auth-title">
             <h1>Recepción de Encomiendas</h1>
-            <p>UNINAVARRA · Acceso de recepción</p>
         </div>
         <div class="card pad">
             {{ $slot }}
