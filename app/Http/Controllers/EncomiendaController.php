@@ -75,6 +75,12 @@ class EncomiendaController extends Controller
             return $encomienda;
         });
 
+        if ($request->user()->role === 'recepcion') {
+            return redirect()
+                ->route('encomiendas.create')
+                ->with('status', 'Encomienda '.$encomienda->codigo.' registrada');
+        }
+
         return redirect()
             ->route('encomiendas.index', ['highlight' => $encomienda->id])
             ->with('status', 'Encomienda '.$encomienda->codigo.' registrada');
