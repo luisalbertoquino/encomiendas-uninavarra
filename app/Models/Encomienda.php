@@ -11,7 +11,7 @@ class Encomienda extends Model
 {
     protected $fillable = [
         'codigo', 'fecha', 'tipo', 'descripcion', 'remitente', 'guia',
-        'recibe', 'interesado', 'colaborador_id', 'dependencia_id', 'whatsapp', 'correo',
+        'recibe', 'interesado', 'colaborador_id', 'interesado_id', 'dependencia_id', 'whatsapp', 'correo',
         'obs', 'documento_interesado', 'enlace_drive',
         'estado', 'entregado_a', 'fecha_entrega', 'reasignada_por', 'reasignada_at',
     ];
@@ -30,6 +30,11 @@ class Encomienda extends Model
     public function colaborador(): BelongsTo
     {
         return $this->belongsTo(Colaborador::class);
+    }
+
+    public function interesadoRef(): BelongsTo
+    {
+        return $this->belongsTo(Interesado::class, 'interesado_id');
     }
 
     public function historial(): HasMany

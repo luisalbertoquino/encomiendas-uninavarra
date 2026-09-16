@@ -7,6 +7,7 @@ use App\Models\Ajuste;
 use App\Models\Colaborador;
 use App\Models\Dependencia;
 use App\Models\Encomienda;
+use App\Models\Interesado;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -18,9 +19,7 @@ class EncomiendaController extends Controller
 {
     public function create(): View
     {
-        return view('encomiendas.registrar', [
-            'colaboradores' => Colaborador::orderBy('nombre')->get(),
-        ]);
+        return view('encomiendas.registrar');
     }
 
     public function store(Request $request): RedirectResponse
@@ -31,13 +30,14 @@ class EncomiendaController extends Controller
             'descripcion' => ['required', 'string', 'max:255'],
             'remitente' => ['nullable', 'string', 'max:255'],
             'guia' => ['nullable', 'string', 'max:100'],
-            'interesado' => ['required', 'string', 'max:255'],
-            'documento_interesado' => ['required', 'string', 'max:30'],
             'obs' => ['nullable', 'string'],
             'enlace_drive' => ['nullable', 'url', 'max:2048'],
             'colaborador_cedula' => ['required', 'string', 'max:30'],
             'colaborador_nombre' => ['required', 'string', 'max:255'],
             'colaborador_correo' => ['required', 'email', 'max:255'],
+            'interesado_cedula' => ['required', 'string', 'max:30'],
+            'interesado_nombre' => ['required', 'string', 'max:255'],
+            'interesado_correo' => ['nullable', 'email', 'max:255'],
         ]);
 
         $ajuste = Ajuste::actual();
@@ -46,6 +46,11 @@ class EncomiendaController extends Controller
             $colaborador = Colaborador::firstOrCreate(
                 ['cedula' => $data['colaborador_cedula']],
                 ['nombre' => $data['colaborador_nombre'], 'correo' => $data['colaborador_correo']],
+            );
+
+            $interesado = Interesado::firstOrCreate(
+                ['cedula' => $data['interesado_cedula']],
+                ['nombre' => $data['interesado_nombre'], 'correo' => $data['interesado_correo'] ?? null],
             );
 
             $fecha = new \DateTime($data['fecha']);
@@ -58,9 +63,10 @@ class EncomiendaController extends Controller
                 'remitente' => $data['remitente'] ?? null,
                 'guia' => $data['guia'] ?? null,
                 'recibe' => $colaborador->nombre,
-                'interesado' => $data['interesado'],
-                'documento_interesado' => $data['documento_interesado'],
+                'interesado' => $interesado->nombre,
+                'documento_interesado' => $interesado->cedula,
                 'colaborador_id' => $colaborador->id,
+                'interesado_id' => $interesado->id,
                 'obs' => $data['obs'] ?? null,
                 'enlace_drive' => $data['enlace_drive'] ?? null,
                 'estado' => 'recibida',

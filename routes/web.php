@@ -1,9 +1,11 @@
 <?php
 
+use App\Http\Controllers\BusquedaPersonaController;
 use App\Http\Controllers\ColaboradorController;
 use App\Http\Controllers\ConsultaPublicaController;
 use App\Http\Controllers\DependenciaController;
 use App\Http\Controllers\EncomiendaController;
+use App\Http\Controllers\InteresadoController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UsuarioController;
 use Illuminate\Support\Facades\Route;
@@ -44,6 +46,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/estacion', [EncomiendaController::class, 'estacion'])->name('encomiendas.estacion');
 
+    Route::get('/buscar-personas/{tipo}', [BusquedaPersonaController::class, 'buscar'])->name('personas.buscar');
+
     Route::middleware('role:admin')->group(function () {
         Route::prefix('usuarios')->name('usuarios.')->group(function () {
             Route::get('/', [UsuarioController::class, 'index'])->name('index');
@@ -57,6 +61,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::resource('dependencias', DependenciaController::class)->except('show')->parameters(['dependencias' => 'dependencia']);
         Route::resource('colaboradores', ColaboradorController::class)->except('show')->parameters(['colaboradores' => 'colaborador']);
+        Route::resource('interesados', InteresadoController::class)->except('show')->parameters(['interesados' => 'interesado']);
     });
 });
 

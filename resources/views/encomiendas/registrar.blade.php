@@ -37,15 +37,12 @@
                 <label>Guía / transportadora (opcional)</label>
                 <input name="guia" value="{{ old('guia') }}" placeholder="N.º de guía, Servientrega, etc.">
             </div>
-            <div class="field">
+
+            <div class="field buscador-wrap">
                 <label>Cédula del colaborador que recibe <span class="req">*</span></label>
-                <input id="colaborador_cedula" name="colaborador_cedula" list="colaboradores-list" value="{{ old('colaborador_cedula') }}" placeholder="Número de cédula" required autocomplete="off">
-                <datalist id="colaboradores-list">
-                    @foreach($colaboradores as $col)
-                        <option value="{{ $col->cedula }}" data-nombre="{{ $col->nombre }}" data-correo="{{ $col->correo }}">{{ $col->nombre }}</option>
-                    @endforeach
-                </datalist>
-                <span class="hint">Si ya existe, el nombre y correo se completan solos. Si es nuevo, complétalos abajo.</span>
+                <input id="colaborador_cedula" name="colaborador_cedula" value="{{ old('colaborador_cedula') }}" placeholder="Escribe cédula o nombre…" required autocomplete="off">
+                <div id="colaborador_sugerencias" class="sugerencias" hidden></div>
+                <span class="hint">Escribe al menos 2 caracteres para ver coincidencias. Si es nuevo, completa nombre y correo abajo.</span>
                 @error('colaborador_cedula')<span class="error">{{ $message }}</span>@enderror
             </div>
             <div class="field">
@@ -58,17 +55,25 @@
                 <input type="email" id="colaborador_correo" name="colaborador_correo" value="{{ old('colaborador_correo') }}" placeholder="nombre@uninavarra.edu.co" required>
                 @error('colaborador_correo')<span class="error">{{ $message }}</span>@enderror
             </div>
-            <div class="field">
-                <label>Interesado / destinatario <span class="req">*</span></label>
-                <input name="interesado" value="{{ old('interesado') }}" placeholder="Nombre de quien espera la encomienda" required>
-                @error('interesado')<span class="error">{{ $message }}</span>@enderror
-            </div>
-            <div class="field">
-                <label>Documento del interesado <span class="req">*</span></label>
-                <input name="documento_interesado" value="{{ old('documento_interesado') }}" placeholder="Cédula" required>
+
+            <div class="field buscador-wrap">
+                <label>Cédula del interesado / destinatario <span class="req">*</span></label>
+                <input id="interesado_cedula" name="interesado_cedula" value="{{ old('interesado_cedula') }}" placeholder="Escribe cédula o nombre…" required autocomplete="off">
+                <div id="interesado_sugerencias" class="sugerencias" hidden></div>
                 <span class="hint">Con este número el interesado podrá consultar todas sus encomiendas pendientes, sin necesidad de cuenta.</span>
-                @error('documento_interesado')<span class="error">{{ $message }}</span>@enderror
+                @error('interesado_cedula')<span class="error">{{ $message }}</span>@enderror
             </div>
+            <div class="field">
+                <label>Nombre del interesado <span class="req">*</span></label>
+                <input id="interesado_nombre" name="interesado_nombre" value="{{ old('interesado_nombre') }}" placeholder="Nombre de quien espera la encomienda" required>
+                @error('interesado_nombre')<span class="error">{{ $message }}</span>@enderror
+            </div>
+            <div class="field">
+                <label>Correo del interesado</label>
+                <input type="email" id="interesado_correo" name="interesado_correo" value="{{ old('interesado_correo') }}" placeholder="Opcional">
+                @error('interesado_correo')<span class="error">{{ $message }}</span>@enderror
+            </div>
+
             <div class="field full">
                 <label>Enlace de soporte digital (si aplica)</label>
                 <input type="url" name="enlace_drive" value="{{ old('enlace_drive') }}" placeholder="https://...">
@@ -90,19 +95,55 @@
 
 @section('scripts')
 <script>
-(function () {
-    const cedula = document.getElementById('colaborador_cedula');
-    const nombre = document.getElementById('colaborador_nombre');
-    const correo = document.getElementById('colaborador_correo');
-    const lista = document.getElementById('colaboradores-list');
+function activarBuscador(prefijo, tipo) {
+    const cedula = document.getElementById(prefijo + '_cedula');
+    const nombre = document.getElementById(prefijo + '_nombre');
+    const correo = document.getElementById(prefijo + '_correo');
+    const caja = document.getElementById(prefijo + '_sugerencias');
+    let timer = null;
+
+    function ocultar() {
+        caja.hidden = true;
+        caja.innerHTML = '';
+    }
+
+    function mostrar(items) {
+        if (!items.length) { ocultar(); return; }
+        caja.innerHTML = items.map(p =>
+            `<div class="sugerencia" data-nombre="${p.nombre.replace(/"/g,'&quot;')}" data-correo="${(p.correo||'').replace(/"/g,'&quot;')}" data-cedula="${p.cedula}">
+                <strong>${p.nombre}</strong><span>C.C. ${p.cedula}</span>
+            </div>`
+        ).join('');
+        caja.hidden = false;
+    }
 
     cedula.addEventListener('input', () => {
-        const opcion = Array.from(lista.options).find(o => o.value === cedula.value);
-        if (opcion) {
-            nombre.value = opcion.dataset.nombre;
-            correo.value = opcion.dataset.correo;
-        }
+        const q = cedula.value.trim();
+        clearTimeout(timer);
+        if (q.length < 2) { ocultar(); return; }
+        timer = setTimeout(() => {
+            fetch(`{{ url('/buscar-personas') }}/${tipo}?q=${encodeURIComponent(q)}`)
+                .then(r => r.json())
+                .then(mostrar)
+                .catch(ocultar);
+        }, 250);
     });
-})();
+
+    caja.addEventListener('click', (ev) => {
+        const item = ev.target.closest('.sugerencia');
+        if (!item) return;
+        cedula.value = item.dataset.cedula;
+        nombre.value = item.dataset.nombre;
+        if (correo) correo.value = item.dataset.correo;
+        ocultar();
+    });
+
+    document.addEventListener('click', (ev) => {
+        if (!ev.target.closest('.buscador-wrap')) ocultar();
+    });
+}
+
+activarBuscador('colaborador', 'colaborador');
+activarBuscador('interesado', 'interesado');
 </script>
 @endsection

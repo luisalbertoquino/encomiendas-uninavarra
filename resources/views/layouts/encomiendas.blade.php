@@ -59,6 +59,9 @@
       <a href="{{ route('colaboradores.index') }}" class="{{ request()->routeIs('colaboradores.*') ? 'active' : '' }}">
         <x-icon name="user" :size="16" /> <span class="label">Colaboradores</span>
       </a>
+      <a href="{{ route('interesados.index') }}" class="{{ request()->routeIs('interesados.*') ? 'active' : '' }}">
+        <x-icon name="user" :size="16" /> <span class="label">Interesados</span>
+      </a>
       <a href="{{ route('usuarios.index') }}" class="{{ request()->routeIs('usuarios.*') ? 'active' : '' }}">
         <x-icon name="user" :size="16" /> <span class="label">Usuarios</span>
       </a>
