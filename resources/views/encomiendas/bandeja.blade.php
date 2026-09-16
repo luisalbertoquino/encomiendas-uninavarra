@@ -30,12 +30,9 @@
     <div>
     @forelse($encomiendas as $e)
         @php
-            $wa = preg_replace('/\D/', '', $e->whatsapp ?? '');
-            if ($wa && strlen($wa) === 10) { $wa = '57'.$wa; }
             $qrPayload = $ajuste->url
                 ? rtrim($ajuste->url, '/').'/'
                 : "ENCOMIENDA {$e->codigo}\n{$e->descripcion}\nInteresado: {$e->interesado}\nRecibida: {$e->fecha->format('d/m/Y H:i')} por {$e->recibe}\nUNINAVARRA";
-            $mensaje = $e->mensajeAviso($ajuste->estacion);
             $idx = $order['estado'] ?? 0;
             $estadoIdx = array_search($e->estado, $order);
         @endphp
@@ -62,7 +59,6 @@
                         <dt>Interesado</dt><dd>{{ $e->interesado }}@if($e->dependencia) · {{ $e->dependencia->nombre }}@endif</dd>
                         <dt>Recibida</dt><dd>{{ $e->fecha->format('d/m/Y H:i') }} por {{ $e->colaborador?->nombre ?? $e->recibe }}</dd>
                         @if($e->guia)<dt>Guía</dt><dd>{{ $e->guia }}</dd>@endif
-                        @if($e->whatsapp)<dt>WhatsApp</dt><dd>{{ $e->whatsapp }}</dd>@endif
                         @if($e->correo)<dt>Correo</dt><dd>{{ $e->correo }}</dd>@endif
                         @if($e->enlace_drive)<dt>Enlace</dt><dd><a href="{{ $e->enlace_drive }}" target="_blank" rel="noopener">Ver en Drive</a></dd>@endif
                         @if($e->obs)<dt>Obs.</dt><dd>{{ $e->obs }}</dd>@endif
@@ -70,22 +66,22 @@
                         @if($e->estado === 'entregada')<dt>Entregada</dt><dd>{{ $e->fecha_entrega?->format('d/m/Y H:i') }} a {{ $e->entregado_a ?: $e->interesado }}</dd>@endif
                     </dl>
 
-                    @if($e->estado === 'recibida' && auth()->user()->isAdministrativa())
+                    @if($e->estado === 'recibida' && (auth()->user()->isAdministrativa() || auth()->user()->isAdmin()))
                     <form method="POST" action="{{ route('encomiendas.reasignar', $e) }}" class="card pad reasignar-form">
                         @csrf
                         <div class="grid">
                             <div class="field">
                                 <label>Dependencia final <span class="req">*</span></label>
-                                <select name="dependencia_id" required>
+                                <select name="dependencia_id" class="dependencia-select" data-target="correo-{{ $e->id }}" required>
                                     <option value="">— Seleccione —</option>
                                     @foreach($dependencias as $dep)
-                                        <option value="{{ $dep->id }}">{{ $dep->nombre }}</option>
+                                        <option value="{{ $dep->id }}" data-correo="{{ $dep->correo }}">{{ $dep->nombre }}</option>
                                     @endforeach
                                 </select>
                             </div>
                             <div class="field">
                                 <label>Correo institucional destino <span class="req">*</span></label>
-                                <input type="email" name="correo" placeholder="dependencia@uninavarra.edu.co" required>
+                                <input type="email" name="correo" id="correo-{{ $e->id }}" placeholder="dependencia@uninavarra.edu.co" required>
                             </div>
                         </div>
                         <div class="actions">
@@ -100,10 +96,6 @@
                 </div>
             </div>
             <div class="foot no-print">
-                @if($wa)
-                    <a class="btn wa sm" target="_blank" rel="noopener"
-                       href="https://wa.me/{{ $wa }}?text={{ urlencode($mensaje) }}"><x-icon name="message-circle" :size="15" />Avisar por WhatsApp</a>
-                @endif
                 @if($e->estado === 'notificada' && $e->correo)
                     <form method="POST" action="{{ route('encomiendas.notificar', $e) }}" style="display:inline">
                         @csrf
@@ -154,5 +146,15 @@ function imprimir(id) {
     document.querySelectorAll('.enc').forEach(c => c.classList.toggle('print-me', c.id === 'enc-'+id));
     window.print();
 }
+
+document.querySelectorAll('.dependencia-select').forEach(select => {
+    select.addEventListener('change', () => {
+        const opcion = select.selectedOptions[0];
+        const correoInput = document.getElementById(select.dataset.target);
+        if (opcion && opcion.dataset.correo) {
+            correoInput.value = opcion.dataset.correo;
+        }
+    });
+});
 </script>
 @endsection

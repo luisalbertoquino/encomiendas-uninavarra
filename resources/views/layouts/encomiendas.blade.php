@@ -37,19 +37,31 @@
       </div>
     </div>
     <nav class="tabs">
+      @if(auth()->user()->role === 'recepcion' || auth()->user()->isAdmin())
       <a href="{{ route('encomiendas.create') }}" class="{{ request()->routeIs('encomiendas.create') ? 'active' : '' }}">
         <x-icon name="package" :size="16" /> <span class="label">Registrar</span>
       </a>
+      @endif
+      @if(auth()->user()->isAdministrativa() || auth()->user()->isAdmin())
       <a href="{{ route('encomiendas.index') }}" class="{{ request()->routeIs('encomiendas.index') ? 'active' : '' }}">
         <x-icon name="inbox" :size="16" /> <span class="label">Bandeja</span>
       </a>
+      @endif
       <a href="{{ route('encomiendas.estacion') }}" class="{{ request()->routeIs('encomiendas.estacion') ? 'active' : '' }}">
         <x-icon name="qr-code" :size="16" /> <span class="label">QR de la estación</span>
       </a>
+      @if(auth()->user()->isAdministrativa() || auth()->user()->isAdmin())
       <a href="{{ route('encomiendas.ajustes') }}" class="{{ request()->routeIs('encomiendas.ajustes') ? 'active' : '' }}">
         <x-icon name="settings" :size="16" /> <span class="label">Ajustes</span>
       </a>
+      @endif
       @if(auth()->user()->isAdmin())
+      <a href="{{ route('dependencias.index') }}" class="{{ request()->routeIs('dependencias.*') ? 'active' : '' }}">
+        <x-icon name="building" :size="16" /> <span class="label">Dependencias</span>
+      </a>
+      <a href="{{ route('colaboradores.index') }}" class="{{ request()->routeIs('colaboradores.*') ? 'active' : '' }}">
+        <x-icon name="user" :size="16" /> <span class="label">Colaboradores</span>
+      </a>
       <a href="{{ route('usuarios.index') }}" class="{{ request()->routeIs('usuarios.*') ? 'active' : '' }}">
         <x-icon name="user" :size="16" /> <span class="label">Usuarios</span>
       </a>

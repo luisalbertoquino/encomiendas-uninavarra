@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Dependencia extends Model
 {
-    protected $fillable = ['nombre'];
+    protected $fillable = ['nombre', 'correo'];
 
     public function encomiendas(): HasMany
     {

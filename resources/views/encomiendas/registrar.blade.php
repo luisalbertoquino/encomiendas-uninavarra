@@ -69,11 +69,6 @@
                 <span class="hint">Con este número el interesado podrá consultar todas sus encomiendas pendientes, sin necesidad de cuenta.</span>
                 @error('documento_interesado')<span class="error">{{ $message }}</span>@enderror
             </div>
-            <div class="field">
-                <label>WhatsApp del interesado</label>
-                <input name="whatsapp" value="{{ old('whatsapp') }}" placeholder="Ej.: 3001234567" inputmode="tel">
-                <span class="hint">Solo dígitos. Se asume Colombia (+57) si no pones indicativo.</span>
-            </div>
             <div class="field full">
                 <label>Enlace de soporte digital (si aplica)</label>
                 <input type="url" name="enlace_drive" value="{{ old('enlace_drive') }}" placeholder="https://...">
