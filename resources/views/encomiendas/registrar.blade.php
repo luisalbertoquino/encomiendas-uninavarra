@@ -88,11 +88,17 @@ function activarBuscador(prefijo, tipo) {
         caja.innerHTML = '';
     }
 
+    function escapeHtml(str) {
+        return String(str ?? '').replace(/[&<>"']/g, c => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+        }[c]));
+    }
+
     function mostrar(items) {
         if (!items.length) { ocultar(); return; }
         caja.innerHTML = items.map(p =>
-            `<div class="sugerencia" data-nombre="${p.nombre.replace(/"/g,'&quot;')}" data-correo="${(p.correo||'').replace(/"/g,'&quot;')}" data-cedula="${p.cedula}">
-                <span class="datos"><strong>${p.nombre}</strong><small>C.C. ${p.cedula}</small></span>
+            `<div class="sugerencia" data-nombre="${escapeHtml(p.nombre)}" data-correo="${escapeHtml(p.correo||'')}" data-cedula="${escapeHtml(p.cedula)}">
+                <span class="datos"><strong>${escapeHtml(p.nombre)}</strong><small>C.C. ${escapeHtml(p.cedula)}</small></span>
                 <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
             </div>`
         ).join('');
