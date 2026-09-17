@@ -5,7 +5,6 @@ use App\Http\Controllers\ColaboradorController;
 use App\Http\Controllers\ConsultaPublicaController;
 use App\Http\Controllers\DependenciaController;
 use App\Http\Controllers\EncomiendaController;
-use App\Http\Controllers\InteresadoController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UsuarioController;
 use Illuminate\Support\Facades\Route;
@@ -37,6 +36,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/encomiendas/exportar', [EncomiendaController::class, 'exportar'])->name('encomiendas.exportar');
         Route::get('/ajustes', [EncomiendaController::class, 'ajustes'])->name('encomiendas.ajustes');
         Route::put('/ajustes', [EncomiendaController::class, 'ajustesUpdate'])->name('encomiendas.ajustes.update');
+        Route::resource('dependencias', DependenciaController::class)->except('show')->parameters(['dependencias' => 'dependencia']);
     });
 
     Route::middleware('role:recepcion,admin')->group(function () {
@@ -59,9 +59,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::delete('/{usuario}', [UsuarioController::class, 'destroy'])->name('destroy');
         });
 
-        Route::resource('dependencias', DependenciaController::class)->except('show')->parameters(['dependencias' => 'dependencia']);
         Route::resource('colaboradores', ColaboradorController::class)->except('show')->parameters(['colaboradores' => 'colaborador']);
-        Route::resource('interesados', InteresadoController::class)->except('show')->parameters(['interesados' => 'interesado']);
     });
 });
 

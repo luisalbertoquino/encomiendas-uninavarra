@@ -7,7 +7,6 @@ use App\Models\Ajuste;
 use App\Models\Colaborador;
 use App\Models\Dependencia;
 use App\Models\Encomienda;
-use App\Models\Interesado;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -31,13 +30,9 @@ class EncomiendaController extends Controller
             'remitente' => ['nullable', 'string', 'max:255'],
             'guia' => ['nullable', 'string', 'max:100'],
             'obs' => ['nullable', 'string'],
-            'enlace_drive' => ['nullable', 'url', 'max:2048'],
             'colaborador_cedula' => ['required', 'string', 'max:30'],
             'colaborador_nombre' => ['required', 'string', 'max:255'],
             'colaborador_correo' => ['required', 'email', 'max:255'],
-            'interesado_cedula' => ['required', 'string', 'max:30'],
-            'interesado_nombre' => ['required', 'string', 'max:255'],
-            'interesado_correo' => ['nullable', 'email', 'max:255'],
         ]);
 
         $ajuste = Ajuste::actual();
@@ -46,11 +41,6 @@ class EncomiendaController extends Controller
             $colaborador = Colaborador::firstOrCreate(
                 ['cedula' => $data['colaborador_cedula']],
                 ['nombre' => $data['colaborador_nombre'], 'correo' => $data['colaborador_correo']],
-            );
-
-            $interesado = Interesado::firstOrCreate(
-                ['cedula' => $data['interesado_cedula']],
-                ['nombre' => $data['interesado_nombre'], 'correo' => $data['interesado_correo'] ?? null],
             );
 
             $fecha = new \DateTime($data['fecha']);
@@ -63,12 +53,8 @@ class EncomiendaController extends Controller
                 'remitente' => $data['remitente'] ?? null,
                 'guia' => $data['guia'] ?? null,
                 'recibe' => $colaborador->nombre,
-                'interesado' => $interesado->nombre,
-                'documento_interesado' => $interesado->cedula,
                 'colaborador_id' => $colaborador->id,
-                'interesado_id' => $interesado->id,
                 'obs' => $data['obs'] ?? null,
-                'enlace_drive' => $data['enlace_drive'] ?? null,
                 'estado' => 'recibida',
             ]);
 
@@ -130,15 +116,20 @@ class EncomiendaController extends Controller
 
         $data = $request->validate([
             'dependencia_id' => ['required', 'exists:dependencias,id'],
-            'correo' => ['required', 'email', 'max:255'],
         ]);
+
+        $dependencia = Dependencia::findOrFail($data['dependencia_id']);
+        abort_if(!$dependencia->correo, 422, 'Esta dependencia no tiene correo configurado.');
 
         $ajuste = Ajuste::actual();
 
-        DB::transaction(function () use ($request, $encomienda, $data) {
+        DB::transaction(function () use ($request, $encomienda, $dependencia) {
             $encomienda->update([
-                'dependencia_id' => $data['dependencia_id'],
-                'correo' => $data['correo'],
+                'dependencia_id' => $dependencia->id,
+                'interesado' => $dependencia->nombre_interesado,
+                'documento_interesado' => $dependencia->cedula_interesado,
+                'correo' => $dependencia->correo,
+                'enlace_drive' => $dependencia->enlace_drive,
                 'estado' => 'en_administrativa',
                 'reasignada_por' => $request->user()->name,
                 'reasignada_at' => now(),
@@ -181,7 +172,7 @@ class EncomiendaController extends Controller
             'entregado_a' => ['nullable', 'string', 'max:255'],
         ]);
 
-        $entregadoA = trim($data['entregado_a'] ?? '') ?: $encomienda->interesado;
+        $entregadoA = trim($data['entregado_a'] ?? '') ?: ($encomienda->interesado ?? '');
 
         $encomienda->update([
             'estado' => 'entregada',

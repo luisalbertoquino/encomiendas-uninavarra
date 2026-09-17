@@ -61,40 +61,6 @@
                 @error('colaborador_correo')<span class="error">{{ $message }}</span>@enderror
             </div>
 
-            <div class="field buscador-wrap">
-                <div class="label-row">
-                    <label>Cédula del interesado / destinatario <span class="req">*</span></label>
-                    <span class="info-tip" tabindex="0">
-                        <i class="icono">i</i>
-                        <span class="globo">Con este número el interesado podrá consultar todas sus encomiendas pendientes, sin necesidad de cuenta.</span>
-                    </span>
-                </div>
-                <input id="interesado_cedula" name="interesado_cedula" value="{{ old('interesado_cedula') }}" placeholder="Escribe cédula o nombre…" required autocomplete="off">
-                <div id="interesado_sugerencias" class="sugerencias" hidden></div>
-                @error('interesado_cedula')<span class="error">{{ $message }}</span>@enderror
-            </div>
-            <div class="field">
-                <label>Nombre del interesado <span class="req">*</span></label>
-                <input id="interesado_nombre" name="interesado_nombre" value="{{ old('interesado_nombre') }}" placeholder="Nombre de quien espera la encomienda" required>
-                @error('interesado_nombre')<span class="error">{{ $message }}</span>@enderror
-            </div>
-            <div class="field">
-                <label>Correo del interesado</label>
-                <input type="email" id="interesado_correo" name="interesado_correo" value="{{ old('interesado_correo') }}" placeholder="Opcional">
-                @error('interesado_correo')<span class="error">{{ $message }}</span>@enderror
-            </div>
-
-            <div class="field full">
-                <div class="label-row">
-                    <label>Enlace de soporte digital (si aplica)</label>
-                    <span class="info-tip" tabindex="0">
-                        <i class="icono">i</i>
-                        <span class="globo">No se suben archivos al servidor: pega aquí el enlace donde ya lo hayas compartido (Google Drive, OneDrive, Dropbox, etc.).</span>
-                    </span>
-                </div>
-                <input type="url" name="enlace_drive" value="{{ old('enlace_drive') }}" placeholder="https://...">
-                @error('enlace_drive')<span class="error">{{ $message }}</span>@enderror
-            </div>
             <div class="field full">
                 <label>Observaciones</label>
                 <textarea name="obs" placeholder="Estado del empaque, condiciones especiales, etc.">{{ old('obs') }}</textarea>
@@ -160,6 +126,5 @@ function activarBuscador(prefijo, tipo) {
 }
 
 activarBuscador('colaborador', 'colaborador');
-activarBuscador('interesado', 'interesado');
 </script>
 @endsection

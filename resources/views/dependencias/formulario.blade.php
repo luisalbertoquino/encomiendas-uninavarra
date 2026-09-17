@@ -23,8 +23,24 @@
             <div class="field">
                 <label>Correo institucional</label>
                 <input type="email" name="correo" value="{{ old('correo', $dependencia->correo) }}" placeholder="dependencia@uninavarra.edu.co">
-                <span class="hint">Se autocompletará en el formulario de reasignación al seleccionar esta dependencia.</span>
+                <span class="hint">Se usará para notificar al interesado al reasignar una encomienda a esta dependencia.</span>
                 @error('correo')<span class="error">{{ $message }}</span>@enderror
+            </div>
+            <div class="field">
+                <label>Nombre del interesado / contacto</label>
+                <input name="nombre_interesado" value="{{ old('nombre_interesado', $dependencia->nombre_interesado) }}" placeholder="Nombre de quien recibe en esta dependencia">
+                @error('nombre_interesado')<span class="error">{{ $message }}</span>@enderror
+            </div>
+            <div class="field">
+                <label>Cédula del interesado / contacto</label>
+                <input name="cedula_interesado" value="{{ old('cedula_interesado', $dependencia->cedula_interesado) }}">
+                @error('cedula_interesado')<span class="error">{{ $message }}</span>@enderror
+            </div>
+            <div class="field full">
+                <label>Enlace de soporte digital (si aplica)</label>
+                <input type="url" name="enlace_drive" value="{{ old('enlace_drive', $dependencia->enlace_drive) }}" placeholder="https://...">
+                <span class="hint">No se suben archivos al servidor: pega aquí el enlace donde ya lo hayas compartido (Google Drive, OneDrive, Dropbox, etc.). Se copiará a cada encomienda reasignada a esta dependencia.</span>
+                @error('enlace_drive')<span class="error">{{ $message }}</span>@enderror
             </div>
         </div>
         <div class="actions">

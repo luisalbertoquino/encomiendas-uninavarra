@@ -48,15 +48,14 @@
         <x-icon name="settings" :size="16" /> <span class="label">Ajustes</span>
       </a>
       @endif
-      @if(auth()->user()->isAdmin())
+      @if(auth()->user()->isAdministrativa() || auth()->user()->isAdmin())
       <a href="{{ route('dependencias.index') }}" class="{{ request()->routeIs('dependencias.*') ? 'active' : '' }}">
         <x-icon name="building" :size="16" /> <span class="label">Dependencias</span>
       </a>
+      @endif
+      @if(auth()->user()->isAdmin())
       <a href="{{ route('colaboradores.index') }}" class="{{ request()->routeIs('colaboradores.*') ? 'active' : '' }}">
         <x-icon name="user" :size="16" /> <span class="label">Colaboradores</span>
-      </a>
-      <a href="{{ route('interesados.index') }}" class="{{ request()->routeIs('interesados.*') ? 'active' : '' }}">
-        <x-icon name="user" :size="16" /> <span class="label">Interesados</span>
       </a>
       <a href="{{ route('usuarios.index') }}" class="{{ request()->routeIs('usuarios.*') ? 'active' : '' }}">
         <x-icon name="user" :size="16" /> <span class="label">Usuarios</span>

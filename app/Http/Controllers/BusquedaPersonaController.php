@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Colaborador;
-use App\Models\Interesado;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -11,7 +10,6 @@ class BusquedaPersonaController extends Controller
 {
     private const MODELOS = [
         'colaborador' => Colaborador::class,
-        'interesado' => Interesado::class,
     ];
 
     public function buscar(Request $request, string $tipo): JsonResponse

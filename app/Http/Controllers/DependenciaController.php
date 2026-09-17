@@ -28,6 +28,9 @@ class DependenciaController extends Controller
         $data = $request->validate([
             'nombre' => ['required', 'string', 'max:255', 'unique:dependencias,nombre'],
             'correo' => ['nullable', 'email', 'max:255'],
+            'nombre_interesado' => ['nullable', 'string', 'max:255'],
+            'cedula_interesado' => ['nullable', 'string', 'max:30'],
+            'enlace_drive' => ['nullable', 'url', 'max:2048'],
         ]);
 
         Dependencia::create($data);
@@ -47,6 +50,9 @@ class DependenciaController extends Controller
         $data = $request->validate([
             'nombre' => ['required', 'string', 'max:255', 'unique:dependencias,nombre,'.$dependencia->id],
             'correo' => ['nullable', 'email', 'max:255'],
+            'nombre_interesado' => ['nullable', 'string', 'max:255'],
+            'cedula_interesado' => ['nullable', 'string', 'max:30'],
+            'enlace_drive' => ['nullable', 'url', 'max:2048'],
         ]);
 
         $dependencia->update($data);

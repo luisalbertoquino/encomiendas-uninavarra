@@ -70,18 +70,15 @@
                     <form method="POST" action="{{ route('encomiendas.reasignar', $e) }}" class="card pad reasignar-form">
                         @csrf
                         <div class="grid">
-                            <div class="field">
+                            <div class="field full">
                                 <label>Dependencia final <span class="req">*</span></label>
-                                <select name="dependencia_id" class="dependencia-select" data-target="correo-{{ $e->id }}" required>
+                                <select name="dependencia_id" required>
                                     <option value="">— Seleccione —</option>
                                     @foreach($dependencias as $dep)
-                                        <option value="{{ $dep->id }}" data-correo="{{ $dep->correo }}">{{ $dep->nombre }}</option>
+                                        <option value="{{ $dep->id }}" @disabled(!$dep->correo)>{{ $dep->nombre }}@if(!$dep->correo) (sin datos configurados)@endif</option>
                                     @endforeach
                                 </select>
-                            </div>
-                            <div class="field">
-                                <label>Correo institucional destino <span class="req">*</span></label>
-                                <input type="email" name="correo" id="correo-{{ $e->id }}" placeholder="dependencia@uninavarra.edu.co" required>
+                                <span class="hint">El interesado, correo y enlace de soporte se toman automáticamente de la dependencia. Edítalos en Dependencias si hace falta.</span>
                             </div>
                         </div>
                         <div class="actions">
@@ -146,15 +143,5 @@ function imprimir(id) {
     document.querySelectorAll('.enc').forEach(c => c.classList.toggle('print-me', c.id === 'enc-'+id));
     window.print();
 }
-
-document.querySelectorAll('.dependencia-select').forEach(select => {
-    select.addEventListener('change', () => {
-        const opcion = select.selectedOptions[0];
-        const correoInput = document.getElementById(select.dataset.target);
-        if (opcion && opcion.dataset.correo) {
-            correoInput.value = opcion.dataset.correo;
-        }
-    });
-});
 </script>
 @endsection
