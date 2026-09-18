@@ -61,7 +61,7 @@
                 @error('colaborador_correo')<span class="error">{{ $message }}</span>@enderror
             </div>
 
-            <div class="field full">
+            <div class="field full" style="margin-bottom:16px">
                 <label>Observaciones</label>
                 <textarea name="obs" placeholder="Estado del empaque, condiciones especiales, etc.">{{ old('obs') }}</textarea>
             </div>

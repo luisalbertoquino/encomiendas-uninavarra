@@ -78,7 +78,7 @@
                                         <option value="{{ $dep->id }}" @disabled(!$dep->correo)>{{ $dep->nombre }}@if(!$dep->correo) (sin datos configurados)@endif</option>
                                     @endforeach
                                 </select>
-                                <span class="hint">El interesado, correo y enlace de soporte se toman automáticamente de la dependencia. Edítalos en Dependencias si hace falta.</span>
+                                <span class="hint">El interesado y su correo se toman automáticamente de la dependencia. Edítalos en Dependencias si hace falta.</span>
                             </div>
                         </div>
                         <div class="actions">

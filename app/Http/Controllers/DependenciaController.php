@@ -30,7 +30,7 @@ class DependenciaController extends Controller
             'correo' => ['nullable', 'email', 'max:255'],
             'nombre_interesado' => ['nullable', 'string', 'max:255'],
             'cedula_interesado' => ['nullable', 'string', 'max:30'],
-            'enlace_drive' => ['nullable', 'url', 'max:2048'],
+            'telefono_interesado' => ['nullable', 'string', 'max:20'],
         ]);
 
         Dependencia::create($data);
@@ -52,7 +52,7 @@ class DependenciaController extends Controller
             'correo' => ['nullable', 'email', 'max:255'],
             'nombre_interesado' => ['nullable', 'string', 'max:255'],
             'cedula_interesado' => ['nullable', 'string', 'max:30'],
-            'enlace_drive' => ['nullable', 'url', 'max:2048'],
+            'telefono_interesado' => ['nullable', 'string', 'max:20'],
         ]);
 
         $dependencia->update($data);

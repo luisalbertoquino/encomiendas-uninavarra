@@ -32,15 +32,14 @@
                 @error('nombre_interesado')<span class="error">{{ $message }}</span>@enderror
             </div>
             <div class="field">
-                <label>Cédula del interesado / contacto</label>
-                <input name="cedula_interesado" value="{{ old('cedula_interesado', $dependencia->cedula_interesado) }}">
+                <label>Documento de identidad <span class="req">*</span></label>
+                <input name="cedula_interesado" value="{{ old('cedula_interesado', $dependencia->cedula_interesado) }}" required>
                 @error('cedula_interesado')<span class="error">{{ $message }}</span>@enderror
             </div>
-            <div class="field full">
-                <label>Enlace de soporte digital (si aplica)</label>
-                <input type="url" name="enlace_drive" value="{{ old('enlace_drive', $dependencia->enlace_drive) }}" placeholder="https://...">
-                <span class="hint">No se suben archivos al servidor: pega aquí el enlace donde ya lo hayas compartido (Google Drive, OneDrive, Dropbox, etc.). Se copiará a cada encomienda reasignada a esta dependencia.</span>
-                @error('enlace_drive')<span class="error">{{ $message }}</span>@enderror
+            <div class="field">
+                <label>Número de teléfono</label>
+                <input name="telefono_interesado" value="{{ old('telefono_interesado', $dependencia->telefono_interesado) }}" placeholder="Opcional" inputmode="tel">
+                @error('telefono_interesado')<span class="error">{{ $message }}</span>@enderror
             </div>
         </div>
         <div class="actions">
